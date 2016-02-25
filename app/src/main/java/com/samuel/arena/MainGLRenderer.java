@@ -1,6 +1,8 @@
 package com.samuel.arena;
 
 import android.opengl.GLSurfaceView;
+import android.view.MotionEvent;
+
 import static android.opengl.GLES20.*;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -24,5 +26,9 @@ public class MainGLRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    public void onTouchEvent(MotionEvent event) {
+
     }
 }
