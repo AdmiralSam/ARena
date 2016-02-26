@@ -63,6 +63,9 @@ public class TouchSystem implements System {
                     messageCenter.broadcast("Touch Moved", pointerID, pointers.get(pointerID));
                 }
             }
+            break;
+            default:
+                break;
         }
     }
 
