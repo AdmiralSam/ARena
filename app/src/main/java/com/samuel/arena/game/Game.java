@@ -104,7 +104,7 @@ public class Game {
     private void detachScreenListeners(Screen screen) {
         screen.messageCenter.removeListener(switchScreens);
         for (System system : systems) {
-            system.detatchScreenListeners(screen);
+            system.detachScreenListeners(screen);
         }
     }
 

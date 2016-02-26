@@ -88,7 +88,7 @@ public class TouchSystem implements System {
     }
 
     @Override
-    public void detatchScreenListeners(Screen screen) {
+    public void detachScreenListeners(Screen screen) {
         screen.messageCenter.removeListener(isDown);
         screen.messageCenter.removeListener(getLocation);
     }

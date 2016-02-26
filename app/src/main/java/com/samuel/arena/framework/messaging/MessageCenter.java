@@ -2,13 +2,15 @@ package com.samuel.arena.framework.messaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by SamuelDong on 2/10/16.
  */
 public class MessageCenter {
-    private final HashMap<String, ArrayList<Object>> listeners;
-    private final ArrayList<Object> toRemove;
+    private final Map<String, ArrayList<Object>> listeners;
+    private final List<Object> toRemove;
 
     public MessageCenter() {
         listeners = new HashMap<>();
@@ -17,7 +19,7 @@ public class MessageCenter {
 
     public void addListener(String message, Object callback) {
         if (!listeners.containsKey(message)) {
-            listeners.put(message, new ArrayList<Object>());
+            listeners.put(message, new ArrayList<>());
         }
         listeners.get(message).add(callback);
     }

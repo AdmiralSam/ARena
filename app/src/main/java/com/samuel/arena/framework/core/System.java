@@ -6,5 +6,5 @@ package com.samuel.arena.framework.core;
 public interface System {
     void attachScreenListeners(Screen screen);
 
-    void detatchScreenListeners(Screen screen);
+    void detachScreenListeners(Screen screen);
 }
