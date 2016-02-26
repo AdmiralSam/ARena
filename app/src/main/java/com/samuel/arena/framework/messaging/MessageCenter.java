@@ -41,7 +41,7 @@ public class MessageCenter {
                 if (listener instanceof Callback1) {
                     try {
                         ((Callback1<A>) listener).callback(parameter1);
-                    } catch (Exception e) {
+                    } catch (ClassCastException e) {
                     }
                 }
             }

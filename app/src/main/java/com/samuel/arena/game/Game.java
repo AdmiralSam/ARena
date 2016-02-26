@@ -13,16 +13,18 @@ import com.samuel.arena.game.systems.TouchSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Samuel on 2/25/2016.
  */
 public class Game {
     public static final int VirtualWidth = 1920, VirtualHeight = 1080;
-    private final HashMap<String, Screen> screens;
+    private final Map<String, Screen> screens;
     private final Context context;
     private final ContentManager content;
-    private final ArrayList<System> systems;
+    private final List<System> systems;
     private final Callback1<String> switchScreens;
     private Screen currentScreen;
     private SpriteBatch spriteBatch;
