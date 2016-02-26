@@ -9,12 +9,13 @@ import com.samuel.arena.framework.messaging.Callback2;
 import com.samuel.arena.framework.messaging.MessageCenter;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Samuel on 2/10/2016.
  */
 public class TouchSystem implements System {
-    private final HashMap<Integer, Point> pointers;
+    private final Map<Integer, Point> pointers;
     private final Callback2<Integer, MessageCenter> isDown, getLocation;
 
     public TouchSystem() {
@@ -76,9 +77,8 @@ public class TouchSystem implements System {
     public Point getLocation(int pointerID) {
         if (isDown(pointerID)) {
             return pointers.get(pointerID);
-        } else {
-            return new Point(-1.0f, -1.0f);
         }
+        return new Point(-1.0f, -1.0f);
     }
 
     @Override

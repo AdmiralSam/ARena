@@ -43,7 +43,7 @@ public class MainGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         game.draw();
-        game.update((float)(System.nanoTime() - previousTime) / 1000000000.0f);
+        game.update((float) (System.nanoTime() - previousTime) / 1000000000.0f);
         previousTime = System.nanoTime();
     }
 

@@ -28,6 +28,7 @@ import static android.opengl.GLES20.glUseProgram;
  * Created by Samuel on 2/7/2016.
  */
 public class ShaderProgram implements Disposable {
+    public static final String Tag = "Shader";
     private static ShaderProgram activeShaderProgram;
     private final HashMap<String, Integer> attributes;
     private final HashMap<String, Integer> uniforms;
@@ -43,7 +44,9 @@ public class ShaderProgram implements Disposable {
     }
 
     public void begin() {
-        if (!disposed) {
+        if (disposed) {
+            Log.e(Tag, "Cannot begin a disposed shader program");
+        } else {
             if (activeShaderProgram == null) {
                 glUseProgram(programID);
                 for (int attributeLocation : attributes.values()) {
@@ -51,10 +54,8 @@ public class ShaderProgram implements Disposable {
                 }
                 activeShaderProgram = this;
             } else {
-                Log.e("Shader", "Previous shader program has not ended");
+                Log.e(Tag, "Previous shader program has not ended");
             }
-        } else {
-            Log.e("Shader", "Cannot begin a disposed shader program");
         }
     }
 
@@ -66,29 +67,27 @@ public class ShaderProgram implements Disposable {
                 }
                 activeShaderProgram = null;
             } else {
-                Log.e("Shader", "This shader program is not active");
+                Log.e(Tag, "This shader program is not active");
             }
         } else {
-            Log.e("Shader", "Cannot end a disposed shader program");
+            Log.e(Tag, "Cannot end a disposed shader program");
         }
     }
 
     public int getAttributeLocation(String name) {
         if (attributes.containsKey(name)) {
             return attributes.get(name);
-        } else {
-            Log.e("Shader", "Attribute \"" + name + "\" does not exist");
-            return -1;
         }
+        Log.e(Tag, "Attribute \"" + name + "\" does not exist");
+        return -1;
     }
 
     public int getUniformLocation(String name) {
         if (uniforms.containsKey(name)) {
             return uniforms.get(name);
-        } else {
-            Log.e("Shader", "Uniform \"" + name + "\" does not exist");
-            return -1;
         }
+        Log.e(Tag, "Uniform \"" + name + "\" does not exist");
+        return -1;
     }
 
     public void dispose() {
@@ -101,14 +100,14 @@ public class ShaderProgram implements Disposable {
         glShaderSource(vertexShader, vertexShaderSource);
         glCompileShader(vertexShader);
         if (glGetShaderInfoLog(vertexShader).length() != 0) {
-            Log.e("Shader", "Vertex Shader Compilation Log:\n" + glGetShaderInfoLog(vertexShader));
+            Log.e(Tag, "Vertex Shader Compilation Log:\n" + glGetShaderInfoLog(vertexShader));
         }
 
         int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, fragmentShaderSource);
         glCompileShader(fragmentShader);
         if (glGetShaderInfoLog(fragmentShader).length() != 0) {
-            Log.e("Shader", "Fragment Shader Compilation Log:\n" + glGetShaderInfoLog(fragmentShader));
+            Log.e(Tag, "Fragment Shader Compilation Log:\n" + glGetShaderInfoLog(fragmentShader));
         }
 
         programID = glCreateProgram();
@@ -116,7 +115,7 @@ public class ShaderProgram implements Disposable {
         glAttachShader(programID, fragmentShader);
         glLinkProgram(programID);
         if (glGetProgramInfoLog(programID).length() != 0) {
-            Log.e("Shader", "Program Linking Log:\n" + glGetProgramInfoLog(programID));
+            Log.e(Tag, "Program Linking Log:\n" + glGetProgramInfoLog(programID));
         }
 
         glDeleteShader(vertexShader);

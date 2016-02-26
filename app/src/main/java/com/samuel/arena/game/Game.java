@@ -61,7 +61,7 @@ public class Game {
     }
 
     public void draw() {
-        if(currentScreen != null) {
+        if (currentScreen != null) {
             currentScreen.draw(spriteBatch);
         }
     }
