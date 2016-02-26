@@ -19,6 +19,7 @@ import java.util.Map;
  * Created by Samuel on 2/7/2016.
  */
 public class ContentManager implements Disposable {
+    public static final String Tag = "Content";
     private final Map<String, Disposable> content;
     private final Context context;
 
@@ -33,10 +34,10 @@ public class ContentManager implements Disposable {
             String fragmentShaderSource = getFileAsString(filename + ".fsf");
             if (vertexShaderSource.length() == 0 || fragmentShaderSource.length() == 0) {
                 if (vertexShaderSource.length() == 0) {
-                    Log.e("Content", "Vertex shader file missing");
+                    Log.e(Tag, "Vertex shader file missing");
                 }
                 if (fragmentShaderSource.length() == 0) {
-                    Log.e("Content", "Fragment shader file missing");
+                    Log.e(Tag, "Fragment shader file missing");
                 }
                 return null;
             } else {
@@ -66,7 +67,7 @@ public class ContentManager implements Disposable {
             fileStream = context.getAssets().open(filename);
             bitmap = BitmapFactory.decodeStream(fileStream);
         } catch (IOException e) {
-            Log.e("Content", "File \"" + filename + "\" does not exist");
+            Log.e(Tag, "File \"" + filename + "\" does not exist");
         }
         return bitmap;
     }
@@ -80,18 +81,18 @@ public class ContentManager implements Disposable {
             String line = fileReader.readLine();
             while (line != null) {
                 fileStringBuilder.append(line);
-                fileStringBuilder.append("\n");
+                fileStringBuilder.append('\n');
                 line = fileReader.readLine();
             }
         } catch (IOException e) {
-            Log.e("Content", "File \"" + filename + "\" does not exist");
+            Log.e(Tag, "File \"" + filename + "\" does not exist");
             return "";
         } finally {
             if (fileReader != null) {
                 try {
                     fileReader.close();
                 } catch (IOException e) {
-                    Log.e("Content", "Failed to close buffered reader");
+                    Log.e(Tag, "Failed to close buffered reader");
                 }
             }
         }

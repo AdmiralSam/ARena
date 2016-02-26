@@ -56,7 +56,7 @@ public class MessageCenter {
                 if (listener instanceof Callback2) {
                     try {
                         ((Callback2<A, B>) listener).callback(parameter1, parameter2);
-                    } catch (Exception e) {
+                    } catch (ClassCastException e) {
                     }
                 }
             }
@@ -71,7 +71,7 @@ public class MessageCenter {
                 if (listener instanceof Callback3) {
                     try {
                         ((Callback3<A, B, C>) listener).callback(parameter1, parameter2, parameter3);
-                    } catch (Exception e) {
+                    } catch (ClassCastException e) {
                     }
                 }
             }

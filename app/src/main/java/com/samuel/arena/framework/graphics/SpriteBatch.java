@@ -27,6 +27,7 @@ import static android.opengl.GLES20.glVertexAttribPointer;
  * Created by Samuel on 2/9/2016.
  */
 public class SpriteBatch {
+    public static final String Tag = "SpriteBatch";
     private final int positionBufferID;
     private final int uvBufferID;
     private final int indexBufferID;
@@ -64,7 +65,7 @@ public class SpriteBatch {
             sourceRectangles.add(sourceRectangle);
             destinationRectangles.add(destinationRectangle);
         } else {
-            Log.e("SpriteBatch", "Cannot draw texture when sprite batch has not begun");
+            Log.e(Tag, "Cannot draw texture when sprite batch has not begun");
         }
     }
 
@@ -74,7 +75,7 @@ public class SpriteBatch {
 
     public void begin(ShaderProgram spriteShader) {
         if (active) {
-            Log.e("SpriteBatch", "Cannot begin when sprite batch has not ended");
+            Log.e(Tag, "Cannot begin when sprite batch has not ended");
         } else {
             active = true;
             this.spriteShader = spriteShader;
@@ -117,7 +118,7 @@ public class SpriteBatch {
             destinationRectangles.clear();
             active = false;
         } else {
-            Log.e("SpriteBatch", "Cannot end when sprite batch has not begun");
+            Log.e(Tag, "Cannot end when sprite batch has not begun");
         }
     }
 

@@ -20,9 +20,10 @@ import static android.opengl.GLES20.glTexParameteri;
  * Created by SamuelDong on 2/9/16.
  */
 public class Texture implements Disposable {
-    private int textureID;
-    private int width;
-    private int height;
+    public static final String Tag = "Texture";
+    private final int textureID;
+    private final int width;
+    private final int height;
     private boolean disposed;
 
     public Texture(Bitmap texture) {
@@ -42,11 +43,11 @@ public class Texture implements Disposable {
     }
 
     public void bindToUnit(int activeTextureUnit) {
-        if (!disposed) {
+        if (disposed) {
+            Log.e(Tag, "Cannot use a disposed texture");
+        } else {
             glActiveTexture(activeTextureUnit);
             glBindTexture(GL_TEXTURE_2D, textureID);
-        } else {
-            Log.e("Texture", "Cannot use a disposed texture");
         }
     }
 

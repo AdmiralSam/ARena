@@ -5,6 +5,7 @@ import android.util.Log;
 import com.samuel.arena.framework.core.Disposable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_VERTEX_SHADER;
@@ -30,8 +31,8 @@ import static android.opengl.GLES20.glUseProgram;
 public class ShaderProgram implements Disposable {
     public static final String Tag = "Shader";
     private static ShaderProgram activeShaderProgram;
-    private final HashMap<String, Integer> attributes;
-    private final HashMap<String, Integer> uniforms;
+    private final Map<String, Integer> attributes;
+    private final Map<String, Integer> uniforms;
     private int programID;
     private boolean disposed;
 
@@ -60,7 +61,9 @@ public class ShaderProgram implements Disposable {
     }
 
     public void end() {
-        if (!disposed) {
+        if (disposed) {
+            Log.e(Tag, "Cannot end a disposed shader program");
+        } else {
             if (activeShaderProgram == this) {
                 for (int attributeLocation : attributes.values()) {
                     glDisableVertexAttribArray(attributeLocation);
@@ -69,8 +72,6 @@ public class ShaderProgram implements Disposable {
             } else {
                 Log.e(Tag, "This shader program is not active");
             }
-        } else {
-            Log.e(Tag, "Cannot end a disposed shader program");
         }
     }
 
