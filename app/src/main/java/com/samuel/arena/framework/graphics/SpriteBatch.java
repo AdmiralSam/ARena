@@ -7,6 +7,7 @@ import com.samuel.arena.framework.core.Rectangle;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_DYNAMIC_DRAW;
@@ -29,12 +30,12 @@ public class SpriteBatch {
     private final int positionBufferID;
     private final int uvBufferID;
     private final int indexBufferID;
-    private final ArrayList<Texture> textures;
-    private final ArrayList<Rectangle> sourceRectangles;
-    private final ArrayList<Rectangle> destinationRectangles;
+    private final List<Texture> textures;
+    private final List<Rectangle> sourceRectangles;
+    private final List<Rectangle> destinationRectangles;
     private final ShaderProgram defaultShader;
-    private int virtualWidth;
-    private int virtualHeight;
+    private final int virtualWidth;
+    private final int virtualHeight;
     private boolean active;
     private ShaderProgram spriteShader;
 
@@ -72,12 +73,12 @@ public class SpriteBatch {
     }
 
     public void begin(ShaderProgram spriteShader) {
-        if (!active) {
+        if (active) {
+            Log.e("SpriteBatch", "Cannot begin when sprite batch has not ended");
+        } else {
             active = true;
             this.spriteShader = spriteShader;
             spriteShader.begin();
-        } else {
-            Log.e("SpriteBatch", "Cannot begin when sprite batch has not ended");
         }
     }
 

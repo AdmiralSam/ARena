@@ -13,12 +13,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Samuel on 2/7/2016.
  */
 public class ContentManager implements Disposable {
-    private final HashMap<String, Disposable> content;
+    private final Map<String, Disposable> content;
     private final Context context;
 
     public ContentManager(Context context) {
@@ -30,9 +31,7 @@ public class ContentManager implements Disposable {
         if (!content.containsKey(filename) || !(content.get(filename) instanceof ShaderProgram)) {
             String vertexShaderSource = getFileAsString(filename + ".vsf");
             String fragmentShaderSource = getFileAsString(filename + ".fsf");
-            if (vertexShaderSource.length() != 0 && fragmentShaderSource.length() != 0) {
-                content.put(filename, new ShaderProgram(vertexShaderSource, fragmentShaderSource));
-            } else {
+            if (vertexShaderSource.length() == 0 || fragmentShaderSource.length() == 0) {
                 if (vertexShaderSource.length() == 0) {
                     Log.e("Content", "Vertex shader file missing");
                 }
@@ -40,6 +39,8 @@ public class ContentManager implements Disposable {
                     Log.e("Content", "Fragment shader file missing");
                 }
                 return null;
+            } else {
+                content.put(filename, new ShaderProgram(vertexShaderSource, fragmentShaderSource));
             }
         }
         return (ShaderProgram) content.get(filename);

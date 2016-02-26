@@ -77,17 +77,19 @@ public class ShaderProgram implements Disposable {
     public int getAttributeLocation(String name) {
         if (attributes.containsKey(name)) {
             return attributes.get(name);
+        } else {
+            Log.e(Tag, "Attribute \"" + name + "\" does not exist");
+            return -1;
         }
-        Log.e(Tag, "Attribute \"" + name + "\" does not exist");
-        return -1;
     }
 
     public int getUniformLocation(String name) {
         if (uniforms.containsKey(name)) {
             return uniforms.get(name);
+        } else {
+            Log.e(Tag, "Uniform \"" + name + "\" does not exist");
+            return -1;
         }
-        Log.e(Tag, "Uniform \"" + name + "\" does not exist");
-        return -1;
     }
 
     public void dispose() {
