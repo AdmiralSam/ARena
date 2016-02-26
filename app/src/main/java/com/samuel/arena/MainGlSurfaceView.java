@@ -7,12 +7,13 @@ import android.view.MotionEvent;
 /**
  * Created by Samuel on 2/25/2016.
  */
-public class MainGlSurfaceView extends GLSurfaceView{
+public class MainGlSurfaceView extends GLSurfaceView {
     private final MainGLRenderer renderer;
+
     public MainGlSurfaceView(Context context) {
         super(context);
         setEGLContextClientVersion(2);
-        renderer = new MainGLRenderer();
+        renderer = new MainGLRenderer(context);
         setRenderer(renderer);
     }
 

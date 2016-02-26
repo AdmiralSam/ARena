@@ -70,6 +70,7 @@ public class ContentManager implements Disposable {
         return bitmap;
     }
 
+
     private String getFileAsString(String filename) {
         BufferedReader fileReader = null;
         StringBuilder fileStringBuilder = new StringBuilder();
