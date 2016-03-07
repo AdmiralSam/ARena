@@ -9,6 +9,7 @@ import com.samuel.arena.framework.core.System;
 import com.samuel.arena.framework.graphics.ShaderProgram;
 import com.samuel.arena.framework.graphics.SpriteBatch;
 import com.samuel.arena.framework.messaging.Callback1;
+import com.samuel.arena.game.screens.GameScreen;
 import com.samuel.arena.game.systems.TouchSystem;
 
 import java.util.ArrayList;
@@ -54,7 +55,8 @@ public class Game {
     }
 
     private void initializeScreens() {
-        switchScreens("Menu Screen");
+        screens.put("Game Screen", new GameScreen(createContentManager()));
+        switchScreens("Game Screen");
     }
 
     public void loadContent() {
