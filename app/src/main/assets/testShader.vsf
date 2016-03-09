@@ -1,0 +1,14 @@
+attribute vec4 position;
+attribute vec2 uv;
+attribute vec4 normal;
+
+varying vec2 interpolatedUV;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+void main() {
+    interpolatedUV = uv;
+    gl_Position = projection * view * model * position;
+}

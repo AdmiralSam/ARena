@@ -6,6 +6,9 @@ import com.samuel.arena.framework.core.Disposable;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER;
@@ -25,6 +28,10 @@ import static android.opengl.GLES20.glVertexAttribPointer;
  */
 public class Mesh implements Disposable {
     public static final String Tag = "Mesh";
+    private static final Pattern vpPattern = Pattern.compile("vp ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+)");
+    private static final Pattern vtPattern = Pattern.compile("\\tvt ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+)");
+    private static final Pattern vnPattern = Pattern.compile("\\tvn ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+)");
+    private static final Pattern fmPattern = Pattern.compile("fm ([0-9]+) ([0-9]+) ([0-9]+)");
     private final int positionBufferID;
     private final int uvBufferID;
     private final int normalBufferID;
@@ -54,6 +61,74 @@ public class Mesh implements Disposable {
         disposed = false;
     }
 
+    public static Mesh parseMesh(String meshSource) {
+        String[] meshLines = meshSource.split("\n");
+        ArrayList<Float> positionList = new ArrayList<>();
+        ArrayList<Float> uvList = new ArrayList<>();
+        ArrayList<Float> normalList = new ArrayList<>();
+        ArrayList<Short> indexList = new ArrayList<>();
+        if (meshLines.length == 0 || !meshLines[0].equals("# Inter-Quake Export")) {
+            Log.e(Tag, "Invalid mesh file format (must be IQE)");
+            return null;
+        }
+        for (String line : meshLines) {
+            if (line.matches(vpPattern.pattern())) {
+                Matcher vpMatch = vpPattern.matcher(line);
+                vpMatch.find();
+                float x = Float.parseFloat(vpMatch.group(1));
+                float y = Float.parseFloat(vpMatch.group(2));
+                float z = Float.parseFloat(vpMatch.group(3));
+                positionList.add(x);
+                positionList.add(y);
+                positionList.add(z);
+                positionList.add(1.0f);
+            } else if (line.matches(vtPattern.pattern())) {
+                Matcher vtMatch = vtPattern.matcher(line);
+                vtMatch.find();
+                float u = Float.parseFloat(vtMatch.group(1));
+                float v = Float.parseFloat(vtMatch.group(2));
+                uvList.add(u);
+                uvList.add(v);
+            } else if (line.matches(vnPattern.pattern())) {
+                Matcher vnMatch = vnPattern.matcher(line);
+                vnMatch.find();
+                float x = Float.parseFloat(vnMatch.group(1));
+                float y = Float.parseFloat(vnMatch.group(2));
+                float z = Float.parseFloat(vnMatch.group(3));
+                normalList.add(x);
+                normalList.add(y);
+                normalList.add(z);
+                normalList.add(0.0f);
+            } else if (line.matches(fmPattern.pattern())) {
+                Matcher fmMatch = fmPattern.matcher(line);
+                fmMatch.find();
+                short index1 = Short.parseShort(fmMatch.group(1));
+                short index2 = Short.parseShort(fmMatch.group(2));
+                short index3 = Short.parseShort(fmMatch.group(3));
+                indexList.add(index1);
+                indexList.add(index2);
+                indexList.add(index3);
+            }
+        }
+        float[] positions = new float[positionList.size()];
+        float[] uvs = new float[uvList.size()];
+        float[] normals = new float[normalList.size()];
+        short[] indices = new short[indexList.size()];
+        for (int i = 0; i < positionList.size(); i++) {
+            positions[i] = positionList.get(i);
+        }
+        for (int i = 0; i < uvList.size(); i++) {
+            uvs[i] = uvList.get(i);
+        }
+        for (int i = 0; i < normalList.size(); i++) {
+            normals[i] = normalList.get(i);
+        }
+        for (int i = 0; i < indexList.size(); i++) {
+            indices[i] = indexList.get(i);
+        }
+        return new Mesh(positions, uvs, normals, indices);
+    }
+
     public void draw(ShaderProgram shader) {
         if (disposed) {
             Log.e(Tag, "Cannot use a disposed mesh");
@@ -61,7 +136,7 @@ public class Mesh implements Disposable {
             glBindBuffer(GL_ARRAY_BUFFER, positionBufferID);
             glVertexAttribPointer(shader.getAttributeLocation("position"), 4, GL_FLOAT, false, 0, 0);
             glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-            glVertexAttribPointer(shader.getAttributeLocation("uv"), 4, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(shader.getAttributeLocation("uv"), 2, GL_FLOAT, false, 0, 0);
             glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
             glVertexAttribPointer(shader.getAttributeLocation("normal"), 4, GL_FLOAT, false, 0, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);

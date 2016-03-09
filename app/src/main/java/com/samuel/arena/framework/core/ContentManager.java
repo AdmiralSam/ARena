@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.samuel.arena.framework.graphics.Mesh;
 import com.samuel.arena.framework.graphics.ShaderProgram;
 import com.samuel.arena.framework.graphics.Texture;
 
@@ -26,6 +27,14 @@ public class ContentManager implements Disposable {
     public ContentManager(Context context) {
         this.context = context;
         content = new HashMap<>();
+    }
+
+    public Mesh loadMesh(String filename) {
+        if (!content.containsKey(filename) || !(content.get(filename) instanceof Mesh)) {
+            String meshSource = getFileAsString(filename + ".iqe");
+            content.put(filename, Mesh.parseMesh(meshSource));
+        }
+        return (Mesh) content.get(filename);
     }
 
     public ShaderProgram loadShader(String filename) {
