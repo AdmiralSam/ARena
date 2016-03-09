@@ -7,6 +7,7 @@ import com.samuel.arena.framework.core.Disposable;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,7 +102,7 @@ public class Mesh implements Disposable {
         return new Mesh(positions, uvs, normals, indices);
     }
 
-    private static void parseFace(ArrayList<Short> indexList, String line) {
+    private static void parseFace(List<Short> indexList, String line) {
         Matcher fmMatch = fmPattern.matcher(line);
         fmMatch.find();
         short index1 = Short.parseShort(fmMatch.group(1));
@@ -112,7 +113,7 @@ public class Mesh implements Disposable {
         indexList.add(index3);
     }
 
-    private static void parseVertexNormal(ArrayList<Float> normalList, String line) {
+    private static void parseVertexNormal(List<Float> normalList, String line) {
         Matcher vnMatch = vnPattern.matcher(line);
         vnMatch.find();
         float x = Float.parseFloat(vnMatch.group(1));
@@ -124,7 +125,7 @@ public class Mesh implements Disposable {
         normalList.add(0.0f);
     }
 
-    private static void parseVertexUV(ArrayList<Float> uvList, String line) {
+    private static void parseVertexUV(List<Float> uvList, String line) {
         Matcher vtMatch = vtPattern.matcher(line);
         vtMatch.find();
         float u = Float.parseFloat(vtMatch.group(1));
@@ -133,7 +134,7 @@ public class Mesh implements Disposable {
         uvList.add(v);
     }
 
-    private static void parseVertexPosition(ArrayList<Float> positionList, String line) {
+    private static void parseVertexPosition(List<Float> positionList, String line) {
         Matcher vpMatch = vpPattern.matcher(line);
         vpMatch.find();
         float x = Float.parseFloat(vpMatch.group(1));
