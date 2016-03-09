@@ -18,9 +18,9 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
  */
 public class GameScreen extends Screen {
     //Testing
-    private float[] projectionMatrix;
-    private float[] viewMatrix;
-    private float[] modelMatrix;
+    private final float[] projectionMatrix;
+    private final float[] viewMatrix;
+    private final float[] modelMatrix;
     private ShaderProgram testShader;
     private Mesh arena;
     private Texture arenaUV;
@@ -57,16 +57,16 @@ public class GameScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
-
+        //TODO
     }
 
     @Override
     public void start() {
-
+        //TODO
     }
 
     @Override
     public void reset() {
-
+        //TODO
     }
 }

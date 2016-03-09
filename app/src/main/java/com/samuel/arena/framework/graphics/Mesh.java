@@ -63,51 +63,23 @@ public class Mesh implements Disposable {
 
     public static Mesh parseMesh(String meshSource) {
         String[] meshLines = meshSource.split("\n");
-        ArrayList<Float> positionList = new ArrayList<>();
-        ArrayList<Float> uvList = new ArrayList<>();
-        ArrayList<Float> normalList = new ArrayList<>();
-        ArrayList<Short> indexList = new ArrayList<>();
         if (meshLines.length == 0 || !meshLines[0].equals("# Inter-Quake Export")) {
             Log.e(Tag, "Invalid mesh file format (must be IQE)");
             return null;
         }
+        ArrayList<Float> positionList = new ArrayList<>();
+        ArrayList<Float> uvList = new ArrayList<>();
+        ArrayList<Float> normalList = new ArrayList<>();
+        ArrayList<Short> indexList = new ArrayList<>();
         for (String line : meshLines) {
             if (line.matches(vpPattern.pattern())) {
-                Matcher vpMatch = vpPattern.matcher(line);
-                vpMatch.find();
-                float x = Float.parseFloat(vpMatch.group(1));
-                float y = Float.parseFloat(vpMatch.group(2));
-                float z = Float.parseFloat(vpMatch.group(3));
-                positionList.add(x);
-                positionList.add(y);
-                positionList.add(z);
-                positionList.add(1.0f);
+                parseVertexPosition(positionList, line);
             } else if (line.matches(vtPattern.pattern())) {
-                Matcher vtMatch = vtPattern.matcher(line);
-                vtMatch.find();
-                float u = Float.parseFloat(vtMatch.group(1));
-                float v = Float.parseFloat(vtMatch.group(2));
-                uvList.add(u);
-                uvList.add(v);
+                parseVertexUV(uvList, line);
             } else if (line.matches(vnPattern.pattern())) {
-                Matcher vnMatch = vnPattern.matcher(line);
-                vnMatch.find();
-                float x = Float.parseFloat(vnMatch.group(1));
-                float y = Float.parseFloat(vnMatch.group(2));
-                float z = Float.parseFloat(vnMatch.group(3));
-                normalList.add(x);
-                normalList.add(y);
-                normalList.add(z);
-                normalList.add(0.0f);
+                parseVertexNormal(normalList, line);
             } else if (line.matches(fmPattern.pattern())) {
-                Matcher fmMatch = fmPattern.matcher(line);
-                fmMatch.find();
-                short index1 = Short.parseShort(fmMatch.group(1));
-                short index2 = Short.parseShort(fmMatch.group(2));
-                short index3 = Short.parseShort(fmMatch.group(3));
-                indexList.add(index1);
-                indexList.add(index2);
-                indexList.add(index3);
+                parseFace(indexList, line);
             }
         }
         float[] positions = new float[positionList.size()];
@@ -127,6 +99,50 @@ public class Mesh implements Disposable {
             indices[i] = indexList.get(i);
         }
         return new Mesh(positions, uvs, normals, indices);
+    }
+
+    private static void parseFace(ArrayList<Short> indexList, String line) {
+        Matcher fmMatch = fmPattern.matcher(line);
+        fmMatch.find();
+        short index1 = Short.parseShort(fmMatch.group(1));
+        short index2 = Short.parseShort(fmMatch.group(2));
+        short index3 = Short.parseShort(fmMatch.group(3));
+        indexList.add(index1);
+        indexList.add(index2);
+        indexList.add(index3);
+    }
+
+    private static void parseVertexNormal(ArrayList<Float> normalList, String line) {
+        Matcher vnMatch = vnPattern.matcher(line);
+        vnMatch.find();
+        float x = Float.parseFloat(vnMatch.group(1));
+        float y = Float.parseFloat(vnMatch.group(2));
+        float z = Float.parseFloat(vnMatch.group(3));
+        normalList.add(x);
+        normalList.add(y);
+        normalList.add(z);
+        normalList.add(0.0f);
+    }
+
+    private static void parseVertexUV(ArrayList<Float> uvList, String line) {
+        Matcher vtMatch = vtPattern.matcher(line);
+        vtMatch.find();
+        float u = Float.parseFloat(vtMatch.group(1));
+        float v = Float.parseFloat(vtMatch.group(2));
+        uvList.add(u);
+        uvList.add(v);
+    }
+
+    private static void parseVertexPosition(ArrayList<Float> positionList, String line) {
+        Matcher vpMatch = vpPattern.matcher(line);
+        vpMatch.find();
+        float x = Float.parseFloat(vpMatch.group(1));
+        float y = Float.parseFloat(vpMatch.group(2));
+        float z = Float.parseFloat(vpMatch.group(3));
+        positionList.add(x);
+        positionList.add(y);
+        positionList.add(z);
+        positionList.add(1.0f);
     }
 
     public void draw(ShaderProgram shader) {
