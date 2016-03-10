@@ -10,7 +10,9 @@ import com.samuel.arena.framework.graphics.SpriteBatch;
 import com.samuel.arena.framework.graphics.Texture;
 
 import static android.opengl.GLES20.GL_TEXTURE0;
+import static android.opengl.GLES20.glUniform1f;
 import static android.opengl.GLES20.glUniform1i;
+import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUniformMatrix4fv;
 
 /**
@@ -38,7 +40,7 @@ public class GameScreen extends Screen {
 
     @Override
     public void loadContent() {
-        testShader = content.loadShader("testShader");
+        testShader = content.loadShader("BlinnPhong");
         arena = content.loadMesh("Arena");
         arenaUV = content.loadTexture("Arena.png");
     }
@@ -50,6 +52,8 @@ public class GameScreen extends Screen {
         glUniformMatrix4fv(testShader.getUniformLocation("view"), 1, false, viewMatrix, 0);
         glUniformMatrix4fv(testShader.getUniformLocation("model"), 1, false, modelMatrix, 0);
         glUniform1i(testShader.getUniformLocation("uvMap"), 0);
+        glUniform1f(testShader.getUniformLocation("specularExponent"), 100.0f);
+        glUniform4f(testShader.getUniformLocation("cameraPosition"), 30.0f, 0.0f, 30.0f, 1.0f);
         arenaUV.bindToUnit(GL_TEXTURE0);
         arena.draw(testShader);
         testShader.end();

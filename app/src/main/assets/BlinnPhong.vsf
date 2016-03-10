@@ -3,6 +3,8 @@ attribute vec2 uv;
 attribute vec4 normal;
 
 varying vec2 interpolatedUV;
+varying vec4 interpolatedNormal;
+varying vec4 interpolatedPosition;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -10,5 +12,7 @@ uniform mat4 model;
 
 void main() {
     interpolatedUV = uv;
+    interpolatedNormal = normalize(model * normal);
+    interpolatedPosition = model * position;
     gl_Position = projection * view * model * position;
 }
