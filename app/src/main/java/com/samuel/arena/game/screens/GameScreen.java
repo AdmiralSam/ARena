@@ -1,6 +1,7 @@
 package com.samuel.arena.game.screens;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.samuel.arena.framework.core.ContentManager;
 import com.samuel.arena.framework.core.Screen;
@@ -31,7 +32,7 @@ public class GameScreen extends Screen {
     public GameScreen(ContentManager content) {
         super(content);
         projectionMatrix = new float[16];
-        Matrix.perspectiveM(projectionMatrix, 0, 40.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+        Matrix.perspectiveM(projectionMatrix, 0, 40.0f, 16.0f / 9.0f, 1.0f, 50.0f);
         viewMatrix = new float[16];
         Matrix.setLookAtM(viewMatrix, 0, 30.0f, 0.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
         modelMatrix = new float[16];
@@ -52,7 +53,7 @@ public class GameScreen extends Screen {
         glUniformMatrix4fv(testShader.getUniformLocation("view"), 1, false, viewMatrix, 0);
         glUniformMatrix4fv(testShader.getUniformLocation("model"), 1, false, modelMatrix, 0);
         glUniform1i(testShader.getUniformLocation("uvMap"), 0);
-        glUniform1f(testShader.getUniformLocation("specularExponent"), 100.0f);
+        glUniform1f(testShader.getUniformLocation("specularExponent"), 50.0f);
         glUniform4f(testShader.getUniformLocation("cameraPosition"), 30.0f, 0.0f, 30.0f, 1.0f);
         arenaUV.bindToUnit(GL_TEXTURE0);
         arena.draw(testShader);
@@ -61,7 +62,7 @@ public class GameScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
-        //TODO
+        Log.d("Delta", deltaTime + "s");
     }
 
     @Override
