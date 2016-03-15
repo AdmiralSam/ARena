@@ -1,0 +1,23 @@
+attribute vec4 position;
+attribute vec2 uv;
+attribute vec4 normal;
+attribute int boneIndex;
+
+varying vec2 interpolatedUV;
+varying vec4 interpolatedNormal;
+varying vec4 interpolatedPosition;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+uniform mat4 bind[10];
+uniform mat4 pose[10];
+
+void main() {
+    mat4 poseMatrix = pose[boneIndex] * inverse(bind[boneIndex]);
+    interpolatedUV = uv;
+    interpolatedNormal = normalize(model * poseMatrix * normal);
+    interpolatedPosition = model * poseMatrix * position;
+    gl_Position = projection * view * model * poseMatrix * position;
+}

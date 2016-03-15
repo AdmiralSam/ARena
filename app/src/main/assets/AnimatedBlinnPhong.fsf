@@ -1,0 +1,40 @@
+varying mediump vec2 interpolatedUV;
+varying mediump vec4 interpolatedNormal;
+varying mediump vec4 interpolatedPosition;
+
+uniform sampler2D uvMap;
+uniform mediump float specularExponent;
+uniform mediump vec4 cameraPosition;
+
+void main() {
+    mediump vec3 normal = normalize(interpolatedNormal.xyz);
+    mediump vec3 eye = normalize(cameraPosition.xyz - interpolatedPosition.xyz);
+    mediump float total = 0.3;
+
+    mediump vec3 light = normalize(vec3(-10.0, -10.0, 50.0) - interpolatedPosition.xyz);
+    mediump vec3 halfVector = normalize(light + eye);
+    mediump float diffuse = 0.2 * max(dot(normal, light), 0.0);
+    mediump float specular = 0.2 * pow(max(dot(halfVector, normal), 0.0), specularExponent);
+    total += diffuse + specular;
+
+    light = normalize(vec3(-10.0, 10.0, 10.0) - interpolatedPosition.xyz);
+    halfVector = normalize(light + eye);
+    diffuse = 0.2 * max(dot(normal, light), 0.0);
+    specular = 0.2 * pow(max(dot(halfVector, normal), 0.0), specularExponent);
+    total += diffuse + specular;
+
+    light = normalize(vec3(10.0, 10.0, 10.0) - interpolatedPosition.xyz);
+    halfVector = normalize(light + eye);
+    diffuse = 0.2 * max(dot(normal, light), 0.0);
+    specular = 0.2 * pow(max(dot(halfVector, normal), 0.0), specularExponent);
+    total += diffuse + specular;
+
+    light = normalize(vec3(10.0, -10.0, 10.0) - interpolatedPosition.xyz);
+    halfVector = normalize(light + eye);
+    diffuse = 0.2 * max(dot(normal, light), 0.0);
+    specular = 0.2 * pow(max(dot(halfVector, normal), 0.0), specularExponent);
+    total += diffuse + specular;
+
+    mediump vec4 diffuseColor = texture2D(uvMap, interpolatedUV);
+    gl_FragColor = vec4(diffuseColor.rgb * total, diffuseColor.a);
+}

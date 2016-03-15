@@ -4,6 +4,7 @@ package com.samuel.arena.framework.graphics;
 import android.opengl.Matrix;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,13 @@ import java.util.regex.Pattern;
  */
 public class AnimationRig {
     private static final Pattern jointPattern = Pattern.compile("joint \".*\" ([-]?[0-9]+)");
-    private AnimationPose basePose;
-    private int[] parents;
-    private Map<Integer, List<Integer>> children;
+    private final AnimationPose basePose;
+    private final int[] parents;
+    private final Map<Integer, List<Integer>> children;
 
     public AnimationRig(AnimationPose basePose, int[] parents) {
         this.basePose = basePose;
-        this.parents = parents;
+        this.parents = Arrays.copyOf(parents, parents.length);
         children = new HashMap<>();
         for (int i = 0; i < parents.length; i++) {
             if (!children.containsKey(parents[i])) {
@@ -64,7 +65,7 @@ public class AnimationRig {
 
     private void flattenPose(float[] result, AnimationPose pose, int index) {
         int parent = parents[index];
-        float[] currentMatrix = translationRotationToMatrix(pose.getTranslation(index), pose.getRotation(index));
+        float[] currentMatrix = pose.getMatrix(index);
         if (parent == -1) {
             for (int i = 0; i < 16; i++) {
                 result[16 * index + i] = currentMatrix[i];
@@ -75,32 +76,6 @@ public class AnimationRig {
         for (int child : children.get(index)) {
             flattenPose(result, pose, child);
         }
-    }
-
-    private float[] translationRotationToMatrix(float[] translation, float[] rotation) {
-        float[] translationMatrix = new float[16];
-        float[] rotationMatrix = new float[16];
-        Matrix.translateM(translationMatrix, 0, translation[0], translation[1], translation[2]);
-        Matrix.setIdentityM(rotationMatrix, 0);
-        float x = rotation[0];
-        float y = rotation[1];
-        float z = rotation[2];
-        float w = rotation[3];
-        rotationMatrix[0] = 1 - 2 * y * y - 2 * z * z;
-        rotationMatrix[1] = 2 * x * y + 2 * z * w;
-        rotationMatrix[2] = 2 * x * z - 2 * y * w;
-
-        rotationMatrix[4] = 2 * x * y - 2 * z * w;
-        rotationMatrix[5] = 1 - 2 * x * x - 2 * z * z;
-        rotationMatrix[6] = 2 * y * z + 2 * x * w;
-
-        rotationMatrix[8] = 2 * x * z + 2 * y * w;
-        rotationMatrix[9] = 2 * y * z - 2 * x * w;
-        rotationMatrix[10] = 1 - 2 * x * x - 2 * y * y;
-
-        float[] resultMatrix = new float[16];
-        Matrix.multiplyMM(resultMatrix, 0, translationMatrix, 0, rotationMatrix, 0);
-        return resultMatrix;
     }
 
     public int size() {
