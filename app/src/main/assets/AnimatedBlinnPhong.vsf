@@ -1,7 +1,7 @@
 attribute vec4 position;
 attribute vec2 uv;
 attribute vec4 normal;
-attribute int boneIndex;
+attribute float boneIndex;
 
 varying vec2 interpolatedUV;
 varying vec4 interpolatedNormal;
@@ -15,7 +15,7 @@ uniform mat4 bind[10];
 uniform mat4 pose[10];
 
 void main() {
-    mat4 poseMatrix = pose[boneIndex] * inverse(bind[boneIndex]);
+    mat4 poseMatrix = pose[int(boneIndex)] * bind[int(boneIndex)];
     interpolatedUV = uv;
     interpolatedNormal = normalize(model * poseMatrix * normal);
     interpolatedPosition = model * poseMatrix * position;

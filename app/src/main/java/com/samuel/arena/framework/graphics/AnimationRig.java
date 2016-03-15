@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class AnimationRig {
     private static final Pattern jointPattern = Pattern.compile("joint \".*\" ([-]?[0-9]+)");
-    private final AnimationPose basePose;
+    public final AnimationPose basePose;
     private final int[] parents;
     private final Map<Integer, List<Integer>> children;
 
@@ -60,7 +60,12 @@ public class AnimationRig {
     }
 
     public float[] processBasePose() {
-        return processPose(basePose);
+        float[] processedBase = processPose(basePose);
+        float[] invertedBase = new float[processedBase.length];
+        for (int i = 0; i < parents.length; i++) {
+            Matrix.invertM(invertedBase, 16 * i, processedBase, 16 * i);
+        }
+        return invertedBase;
     }
 
     private void flattenPose(float[] result, AnimationPose pose, int index) {
@@ -73,8 +78,10 @@ public class AnimationRig {
         } else {
             Matrix.multiplyMM(result, 16 * index, result, 16 * parent, currentMatrix, 0);
         }
-        for (int child : children.get(index)) {
-            flattenPose(result, pose, child);
+        if (children.containsKey(index)) {
+            for (int child : children.get(index)) {
+                flattenPose(result, pose, child);
+            }
         }
     }
 

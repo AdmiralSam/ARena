@@ -3,6 +3,7 @@ package com.samuel.arena.framework.graphics;
 import android.opengl.Matrix;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +12,7 @@ import java.util.regex.Pattern;
  * Created by Samuel on 3/15/2016.
  */
 public class AnimationPose {
-    private static final Pattern pqPattern = Pattern.compile("\\tpq ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+)");
+    public static final Pattern pqPattern = Pattern.compile("pq ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+) ([-]?[0-9]+[.][0-9]+)");
     private final float[][] translations;
     private final float[][] rotations;
 
@@ -73,18 +74,19 @@ public class AnimationPose {
     }
 
     public float[] getTranslation(int index) {
-        return translations[index];
+        return Arrays.copyOf(translations[index], translations[index].length);
     }
 
     public float[] getRotation(int index) {
-        return rotations[index];
+        return Arrays.copyOf(rotations[index], rotations[index].length);
     }
 
     public float[] getMatrix(int index) {
         float[] translationMatrix = new float[16];
         float[] rotationMatrix = new float[16];
-        Matrix.translateM(translationMatrix, 0, translations[index][0], translations[index][1], translations[index][2]);
+        Matrix.setIdentityM(translationMatrix, 0);
         Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.translateM(translationMatrix, 0, translations[index][0], translations[index][1], translations[index][2]);
         float x = rotations[index][0];
         float y = rotations[index][1];
         float z = rotations[index][2];

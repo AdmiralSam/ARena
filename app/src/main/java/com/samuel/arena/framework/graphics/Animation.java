@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class Animation {
     private final List<AnimationPose> frames;
-    private float framerate;
-    private boolean looping;
+    private final float framerate;
+    private final boolean looping;
     private boolean running;
     private float localTime;
 
@@ -50,6 +50,9 @@ public class Animation {
 
     public AnimationPose getPose() {
         int frame = (int) (localTime * framerate);
+        if (frame == frames.size() - 1) {
+            return frames.get(frame);
+        }
         return AnimationPose.interpolate(frames.get(frame), frames.get(frame + 1), localTime - frame / framerate);
     }
 }

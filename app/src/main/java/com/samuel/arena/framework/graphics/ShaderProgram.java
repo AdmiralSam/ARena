@@ -131,11 +131,17 @@ public class ShaderProgram implements Disposable {
             if (tokens[0].equals("attribute")) {
                 String name = tokens[tokens.length - 1];
                 name = name.substring(0, name.length() - 1);
+                if (name.contains("[")) {
+                    name = name.substring(0, name.indexOf('['));
+                }
                 attributes.put(name, glGetAttribLocation(programID, name));
             }
             if (tokens[0].equals("uniform")) {
                 String name = tokens[tokens.length - 1];
                 name = name.substring(0, name.length() - 1);
+                if (name.contains("[")) {
+                    name = name.substring(0, name.indexOf('['));
+                }
                 uniforms.put(name, glGetUniformLocation(programID, name));
             }
         }
@@ -144,6 +150,9 @@ public class ShaderProgram implements Disposable {
             if (tokens[0].equals("uniform")) {
                 String name = tokens[tokens.length - 1];
                 name = name.substring(0, name.length() - 1);
+                if (name.contains("[")) {
+                    name = name.substring(0, name.indexOf('['));
+                }
                 uniforms.put(name, glGetUniformLocation(programID, name));
             }
         }

@@ -10,6 +10,7 @@ public class AnimationSystem {
     private final Map<String, Animation> animations;
     private String currentAnimation;
     private String transitioningAnimation;
+    private AnimationPose transitionFrom;
     private float transitionLength;
     private float transitionTime;
 
@@ -30,7 +31,6 @@ public class AnimationSystem {
             animations.get(transitioningAnimation).update(deltaTime);
             transitionTime += deltaTime;
             if (transitionTime > transitionLength) {
-                animations.get(currentAnimation).setTime(0.0f);
                 currentAnimation = transitioningAnimation;
                 transitioningAnimation = null;
             }
@@ -39,22 +39,22 @@ public class AnimationSystem {
     }
 
     public void transition(String name, float length) {
-        if (!name.equals(currentAnimation)) {
-            transitionLength = length;
-            transitionTime = 0.0f;
-            transitioningAnimation = name;
-            animations.get(currentAnimation).stop();
-            animations.get(transitioningAnimation).start();
-        }
+        transitionFrom = getPose();
+        transitionLength = length;
+        transitionTime = 0.0f;
+        transitioningAnimation = name;
+        animations.get(currentAnimation).stop();
+        animations.get(currentAnimation).setTime(0.0f);
+        animations.get(transitioningAnimation).setTime(0.0f);
+        animations.get(transitioningAnimation).start();
     }
 
     public AnimationPose getPose() {
         if (transitioningAnimation == null) {
             return animations.get(currentAnimation).getPose();
-        } else{
-            AnimationPose current = animations.get(currentAnimation).getPose();
+        } else {
             AnimationPose transition = animations.get(transitioningAnimation).getPose();
-            return AnimationPose.interpolate(current, transition, transitionTime / transitionLength);
+            return AnimationPose.interpolate(transitionFrom, transition, transitionTime / transitionLength);
         }
     }
 }
