@@ -55,4 +55,8 @@ public class Animation {
         }
         return AnimationPose.interpolate(frames.get(frame), frames.get(frame + 1), localTime - frame / framerate);
     }
+
+    public float getLocalTime() {
+        return localTime;
+    }
 }

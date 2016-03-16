@@ -136,4 +136,12 @@ public class AnimatedMesh extends Mesh {
     public void transition(String name, float transitionTime) {
         animationSystem.transition(name, transitionTime);
     }
+
+    public String getCurrentAnimation() {
+        return animationSystem.getCurrentAnimation();
+    }
+
+    public float getCurrentAnimationTime() {
+        return animationSystem.getCurrentAnimationTime();
+    }
 }

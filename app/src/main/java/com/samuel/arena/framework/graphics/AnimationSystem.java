@@ -57,4 +57,12 @@ public class AnimationSystem {
             return AnimationPose.interpolate(transitionFrom, transition, transitionTime / transitionLength);
         }
     }
+
+    public String getCurrentAnimation() {
+        return transitioningAnimation == null ? currentAnimation : transitioningAnimation;
+    }
+
+    public float getCurrentAnimationTime() {
+        return animations.get(currentAnimation).getLocalTime();
+    }
 }

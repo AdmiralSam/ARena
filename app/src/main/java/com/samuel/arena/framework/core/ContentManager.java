@@ -30,7 +30,7 @@ public class ContentManager implements Disposable {
         content = new HashMap<>();
     }
 
-    public AnimatedMesh loadAniamtedMesh(String filename) {
+    public AnimatedMesh loadAnimatedMesh(String filename) {
         if (!content.containsKey(filename) || !(content.get(filename) instanceof AnimatedMesh)) {
             String meshSource = getFileAsString(filename + ".iqe");
             content.put(filename, AnimatedMesh.parseAnimatedMesh(meshSource));

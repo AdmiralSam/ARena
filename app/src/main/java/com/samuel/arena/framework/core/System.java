@@ -7,4 +7,6 @@ public interface System {
     void attachScreenListeners(Screen screen);
 
     void detachScreenListeners(Screen screen);
+
+    void update(float deltaTime);
 }

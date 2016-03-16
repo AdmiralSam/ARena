@@ -1,114 +1,212 @@
 package com.samuel.arena.game.screens;
 
-import android.opengl.Matrix;
-import android.util.Log;
-
 import com.samuel.arena.framework.core.ContentManager;
+import com.samuel.arena.framework.core.Point;
 import com.samuel.arena.framework.core.Screen;
+import com.samuel.arena.framework.core.Transform;
 import com.samuel.arena.framework.graphics.AnimatedMesh;
 import com.samuel.arena.framework.graphics.Mesh;
 import com.samuel.arena.framework.graphics.ShaderProgram;
 import com.samuel.arena.framework.graphics.SpriteBatch;
 import com.samuel.arena.framework.graphics.Texture;
+import com.samuel.arena.framework.messaging.Callback1;
+import com.samuel.arena.framework.messaging.Callback2;
 
 import static android.opengl.GLES20.GL_TEXTURE0;
 import static android.opengl.GLES20.glUniform1f;
 import static android.opengl.GLES20.glUniform1i;
-import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUniformMatrix4fv;
 
 /**
  * Created by Samuel on 3/6/2016.
  */
 public class GameScreen extends Screen {
-    //Testing
-    private final float[] projectionMatrix;
-    private final float[] viewMatrix;
-    private final float[] modelMatrix;
-    private final float[] characterMatrix;
-    private ShaderProgram testShader;
-    private ShaderProgram animShader;
+    public static final float ArenaRadius = 9.0f;
+    public static final float CharacterRadius = 1.0f;
+    public static final float CharacterSpeed = 3.0f;
+    private final Callback1<float[]> setProjectionMatrix, setViewMatrix, setCameraPosition;
+    private final Callback2<Integer, Point> onTouchDown, onTouchUp, onTouchMoved;
+    private float[] projectionMatrix;
+    private float[] viewMatrix;
+    private float[] cameraPosition;
+    private ShaderProgram blinnPhong;
+    private ShaderProgram animatedBlinnPhong;
     private Mesh arena;
-    private AnimatedMesh character;
+    private Transform arenaTransform;
+    private AnimatedMesh character1;
+    private AnimatedMesh character2;
+    private Transform character1Transform;
+    private Transform character2Transform;
     private Texture arenaUV;
-    private float timePassed;
-    private boolean moving;
-    //Testing
+    private int control = 1;
+    private int joystickPointerID;
+    private float joystickX, joystickY;
 
     public GameScreen(ContentManager content) {
         super(content);
-        projectionMatrix = new float[16];
-        Matrix.perspectiveM(projectionMatrix, 0, 40.0f, 16.0f / 9.0f, 1.0f, 50.0f);
-        viewMatrix = new float[16];
-        Matrix.setLookAtM(viewMatrix, 0, 15.0f, 0.0f, 15.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-        modelMatrix = new float[16];
-        Matrix.setIdentityM(modelMatrix, 0);
-        characterMatrix = new float[16];
-        Matrix.setIdentityM(characterMatrix, 0);
-        Matrix.scaleM(characterMatrix, 0, 3.0f, 3.0f, 3.0f);
-        Matrix.translateM(characterMatrix, 0, 0.0f, 0.0f, 1.0f);
+        setProjectionMatrix = new Callback1<float[]>() {
+            @Override
+            public void callback(float[] parameter1) {
+                setProjectionMatrix(parameter1);
+            }
+        };
+        setViewMatrix = new Callback1<float[]>() {
+            @Override
+            public void callback(float[] parameter1) {
+                setViewMatrix(parameter1);
+            }
+        };
+        setCameraPosition = new Callback1<float[]>() {
+            @Override
+            public void callback(float[] parameter1) {
+                setCameraPosition(parameter1);
+            }
+        };
+        onTouchDown = new Callback2<Integer, Point>() {
+            @Override
+            public void callback(Integer parameter1, Point parameter2) {
+                onTouchDown(parameter1, parameter2);
+            }
+        };
+        onTouchUp = new Callback2<Integer, Point>() {
+            @Override
+            public void callback(Integer parameter1, Point parameter2) {
+                onTouchUp(parameter1, parameter2);
+            }
+        };
+        onTouchMoved = new Callback2<Integer, Point>() {
+            @Override
+            public void callback(Integer parameter1, Point parameter2) {
+                onTouchMoved(parameter1, parameter2);
+            }
+        };
+        joystickPointerID = -1;
     }
 
     @Override
     public void loadContent() {
-        testShader = content.loadShader("BlinnPhong");
-        animShader = content.loadShader("AnimatedBlinnPhong");
+        blinnPhong = content.loadShader("BlinnPhong");
+        animatedBlinnPhong = content.loadShader("AnimatedBlinnPhong");
         arena = content.loadMesh("Arena");
-        character = content.loadAniamtedMesh("Character");
+        character1 = content.loadAnimatedMesh("Character");
+        character2 = content.loadAnimatedMesh("Character2");
         arenaUV = content.loadTexture("Arena.png");
     }
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        testShader.begin();
-        glUniformMatrix4fv(testShader.getUniformLocation("projection"), 1, false, projectionMatrix, 0);
-        glUniformMatrix4fv(testShader.getUniformLocation("view"), 1, false, viewMatrix, 0);
-        glUniformMatrix4fv(testShader.getUniformLocation("model"), 1, false, modelMatrix, 0);
-        glUniform1i(testShader.getUniformLocation("uvMap"), 0);
-        glUniform1f(testShader.getUniformLocation("specularExponent"), 50.0f);
-        glUniform4f(testShader.getUniformLocation("cameraPosition"), 15.0f, 0.0f, 15.0f, 1.0f);
+        blinnPhong.begin();
+        messageCenter.broadcast("Bind Camera", blinnPhong);
+        glUniformMatrix4fv(blinnPhong.getUniformLocation("model"), 1, false, arenaTransform.getModelMatrix(), 0);
+        glUniform1i(blinnPhong.getUniformLocation("uvMap"), 0);
+        glUniform1f(blinnPhong.getUniformLocation("specularExponent"), 50.0f);
         arenaUV.bindToUnit(GL_TEXTURE0);
-        arena.draw(testShader);
-        testShader.end();
-        animShader.begin();
-        glUniformMatrix4fv(animShader.getUniformLocation("projection"), 1, false, projectionMatrix, 0);
-        glUniformMatrix4fv(animShader.getUniformLocation("view"), 1, false, viewMatrix, 0);
-        glUniformMatrix4fv(animShader.getUniformLocation("model"), 1, false, characterMatrix, 0);
-        glUniform1i(animShader.getUniformLocation("uvMap"), 0);
-        glUniform1f(animShader.getUniformLocation("specularExponent"), 50.0f);
-        glUniform4f(animShader.getUniformLocation("cameraPosition"), 15.0f, 0.0f, 15.0f, 1.0f);
+        arena.draw(blinnPhong);
+        blinnPhong.end();
+
+        animatedBlinnPhong.begin();
+        messageCenter.broadcast("Bind Camera", animatedBlinnPhong);
+        glUniformMatrix4fv(animatedBlinnPhong.getUniformLocation("model"), 1, false, character1Transform.getModelMatrix(), 0);
+        glUniform1i(animatedBlinnPhong.getUniformLocation("uvMap"), 0);
+        glUniform1f(animatedBlinnPhong.getUniformLocation("specularExponent"), 50.0f);
         arenaUV.bindToUnit(GL_TEXTURE0);
-        character.draw(animShader);
-        animShader.end();
+        character1.draw(animatedBlinnPhong);
+        glUniformMatrix4fv(animatedBlinnPhong.getUniformLocation("model"), 1, false, character2Transform.getModelMatrix(), 0);
+        character2.draw(animatedBlinnPhong);
+        animatedBlinnPhong.end();
     }
 
-    @Override
-    public void update(float deltaTime) {
-        Log.d("Delta", deltaTime + "s");
-        character.update(deltaTime);
-        timePassed += deltaTime;
-        if (moving) {
-            if (timePassed > 3.0f) {
-                timePassed = 0.0f;
-                moving = false;
-                character.transition("Idle", 0.25f);
-            }
-        } else {
-            if (timePassed > 17.0f) {
-                timePassed = 0.0f;
-                moving = true;
-                character.transition("Moving", 0.25f);
+    private void setProjectionMatrix(float[] projectionMatrix) {
+        this.projectionMatrix = projectionMatrix;
+    }
+
+    private void setViewMatrix(float[] viewMatrix) {
+        this.viewMatrix = viewMatrix;
+    }
+
+    private void setCameraPosition(float[] position) {
+        cameraPosition = position;
+    }
+
+    private void onTouchDown(int pointerID, Point touchLocation) {
+        if (touchLocation.x > 0 && touchLocation.x < 400 && touchLocation.y > 680 && touchLocation.y < 1080) {
+            joystickPointerID = pointerID;
+            joystickX = (touchLocation.x - 200.0f) / 200.0f;
+            joystickY = -(touchLocation.y - 880.0f) / 200.0f;
+        }
+    }
+
+    private void onTouchUp(int pointerID, Point touchLocation) {
+        if (pointerID == joystickPointerID) {
+            joystickPointerID = -1;
+        }
+    }
+
+    private void onTouchMoved(int pointerID, Point touchLocation) {
+        if (pointerID == joystickPointerID) {
+            if (touchLocation.x > 0 && touchLocation.x < 400 && touchLocation.y > 680 && touchLocation.y < 1080) {
+                joystickX = (touchLocation.x - 200.0f) / 200.0f;
+                joystickY = -(touchLocation.y - 880.0f) / 200.0f;
+            } else {
+                joystickPointerID = -1;
+                joystickX = 0.0f;
+                joystickY = 0.0f;
             }
         }
     }
 
     @Override
+    public void update(float deltaTime) {
+        character1.update(deltaTime);
+        character2.update(deltaTime);
+        if (control == 1) {
+            if (joystickPointerID != -1) {
+                character1Transform.translate(CharacterSpeed * joystickX * deltaTime, CharacterSpeed * joystickY * deltaTime, 0.0f);
+                character1Transform.rotation = (float) Math.toDegrees(Math.atan2(joystickY, joystickX)) + 180;
+            }
+            if (joystickPointerID != -1 && character1.getCurrentAnimation().equals("Idle")) {
+                character1.transition("Moving", 0.25f);
+            }
+            if (joystickPointerID == -1 && character1.getCurrentAnimation().equals("Moving")) {
+                character1.transition("Idle", 0.25f);
+            }
+            float distanceFromCenter = (float) Math.sqrt(Math.pow(character1Transform.x, 2) + Math.pow(character1Transform.y, 2));
+            float distanceFromOther = (float) Math.sqrt(Math.pow(character1Transform.x - character2Transform.x, 2) + Math.pow(character1Transform.y - character2Transform.y, 2));
+            if (distanceFromCenter > ArenaRadius) {
+                float extra = distanceFromCenter - ArenaRadius;
+                character1Transform.translate(-character1Transform.x * extra / distanceFromCenter, -character1Transform.y * extra / distanceFromCenter, 0.0f);
+            }
+            if (distanceFromOther < 2 * CharacterRadius) {
+                float extra = 2 * CharacterRadius - distanceFromOther;
+                character1Transform.translate((character1Transform.x - character2Transform.x) * extra / distanceFromOther, (character1Transform.y - character2Transform.y) * extra / distanceFromOther, 0.0f);
+            }
+        }
+        messageCenter.broadcast("Get Projection Matrix", messageCenter);
+        messageCenter.broadcast("Get View Matrix", messageCenter);
+        messageCenter.broadcast("Get Position", messageCenter);
+    }
+
+    @Override
     public void start() {
-        //TODO
+        arenaTransform = new Transform();
+        character2Transform = new Transform(-5.0f, 0.0f, 0.5f, 3.0f, 180.0f);
+        character1Transform = new Transform(5.0f, 0.0f, 0.5f, 3.0f, 0.0f);
+        messageCenter.addListener("Projection Matrix", setProjectionMatrix);
+        messageCenter.addListener("View Matrix", setViewMatrix);
+        messageCenter.addListener("Position", setCameraPosition);
+        messageCenter.addListener("Touch Down", onTouchDown);
+        messageCenter.addListener("Touch Up", onTouchUp);
+        messageCenter.addListener("Touch Moved", onTouchMoved);
     }
 
     @Override
     public void reset() {
-        //TODO
+        messageCenter.removeListener(setProjectionMatrix);
+        messageCenter.removeListener(setViewMatrix);
+        messageCenter.removeListener(setCameraPosition);
+        messageCenter.removeListener(onTouchDown);
+        messageCenter.removeListener(onTouchMoved);
+        messageCenter.removeListener(onTouchUp);
+
     }
 }

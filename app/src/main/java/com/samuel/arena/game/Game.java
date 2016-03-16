@@ -10,6 +10,7 @@ import com.samuel.arena.framework.graphics.ShaderProgram;
 import com.samuel.arena.framework.graphics.SpriteBatch;
 import com.samuel.arena.framework.messaging.Callback1;
 import com.samuel.arena.game.screens.GameScreen;
+import com.samuel.arena.game.systems.CameraSystem;
 import com.samuel.arena.game.systems.TouchSystem;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class Game {
     private Screen currentScreen;
     private SpriteBatch spriteBatch;
     private TouchSystem touchSystem;
+    private CameraSystem cameraSystem;
 
     public Game(Context context) {
         this.context = context;
@@ -50,8 +52,10 @@ public class Game {
     }
 
     private void initializeSystems() {
-        touchSystem = new TouchSystem();
+        touchSystem = new TouchSystem(context);
+        cameraSystem = new CameraSystem();
         systems.add(touchSystem);
+        systems.add(cameraSystem);
     }
 
     private void initializeScreens() {
@@ -60,7 +64,7 @@ public class Game {
     }
 
     public void loadContent() {
-        ShaderProgram defaultShader = content.loadShader("Shaders/BasicShader");
+        ShaderProgram defaultShader = content.loadShader("Shaders/2DShader");
         spriteBatch = new SpriteBatch(Game.VirtualWidth, Game.VirtualHeight, defaultShader);
     }
 
@@ -73,6 +77,9 @@ public class Game {
     public void update(float deltaTime) {
         if (currentScreen != null) {
             currentScreen.update(deltaTime);
+        }
+        for (System system : systems) {
+            system.update(deltaTime);
         }
     }
 
