@@ -53,7 +53,7 @@ public class Game {
 
     private void initializeSystems() {
         touchSystem = new TouchSystem(context);
-        cameraSystem = new CameraSystem();
+        cameraSystem = new CameraSystem(context);
         systems.add(touchSystem);
         systems.add(cameraSystem);
     }

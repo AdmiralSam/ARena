@@ -2,6 +2,11 @@ package com.samuel.arena.game.screens;
 
 import android.opengl.Matrix;
 
+import com.qualcomm.vuforia.Renderer;
+import com.qualcomm.vuforia.State;
+import com.qualcomm.vuforia.Tool;
+import com.qualcomm.vuforia.Trackable;
+import com.qualcomm.vuforia.TrackableResult;
 import com.samuel.arena.framework.core.ContentManager;
 import com.samuel.arena.framework.core.Point;
 import com.samuel.arena.framework.core.Screen;
@@ -97,6 +102,20 @@ public class GameScreen extends Screen {
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
+        State state = Renderer.getInstance().begin();
+        /*
+        glDisable(GL_DEPTH_TEST);
+        Renderer.getInstance().drawVideoBackground();
+        glEnable(GL_DEPTH_TEST);
+        */
+        for (int i = 0; i < state.getNumTrackableResults(); i++) {
+            TrackableResult result = state.getTrackableResult(i);
+            Trackable trackable = state.getTrackable(i);
+            if (trackable.getName().equalsIgnoreCase("Stones")) {
+                messageCenter.broadcast("Update View", Tool.convertPose2GLMatrix(result.getPose()));
+                messageCenter.broadcast("Get View Matrix", messageCenter);
+            }
+        }
         blinnPhong.begin();
         messageCenter.broadcast("Bind Camera", blinnPhong);
         glUniformMatrix4fv(blinnPhong.getUniformLocation("model"), 1, false, arenaTransform.getModelMatrix(), 0);
@@ -116,6 +135,7 @@ public class GameScreen extends Screen {
         glUniformMatrix4fv(animatedBlinnPhong.getUniformLocation("model"), 1, false, character2Transform.getModelMatrix(), 0);
         character2.draw(animatedBlinnPhong);
         animatedBlinnPhong.end();
+        Renderer.getInstance().end();
     }
 
     private void setProjectionMatrix(float[] projectionMatrix) {
@@ -134,7 +154,7 @@ public class GameScreen extends Screen {
         if (touchLocation.x > 0 && touchLocation.x < 400 && touchLocation.y > 680 && touchLocation.y < 1080) {
             joystickPointerID = pointerID;
             joystickX = (touchLocation.x - 200.0f) / 200.0f;
-            joystickY = -(touchLocation.y - 880.0f) / 200.0f;
+            joystickY = (touchLocation.y - 880.0f) / 200.0f;
         }
     }
 
@@ -148,7 +168,7 @@ public class GameScreen extends Screen {
         if (pointerID == joystickPointerID) {
             if (touchLocation.x > 0 && touchLocation.x < 400 && touchLocation.y > 680 && touchLocation.y < 1080) {
                 joystickX = (touchLocation.x - 200.0f) / 200.0f;
-                joystickY = -(touchLocation.y - 880.0f) / 200.0f;
+                joystickY = (touchLocation.y - 880.0f) / 200.0f;
             } else {
                 joystickPointerID = -1;
                 joystickX = 0.0f;
@@ -271,6 +291,7 @@ public class GameScreen extends Screen {
         messageCenter.addListener("Touch Down", onTouchDown);
         messageCenter.addListener("Touch Up", onTouchUp);
         messageCenter.addListener("Touch Moved", onTouchMoved);
+
     }
 
     @Override
