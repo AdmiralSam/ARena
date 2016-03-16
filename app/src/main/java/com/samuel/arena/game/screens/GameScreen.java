@@ -1,5 +1,7 @@
 package com.samuel.arena.game.screens;
 
+import android.opengl.Matrix;
+
 import com.samuel.arena.framework.core.ContentManager;
 import com.samuel.arena.framework.core.Point;
 import com.samuel.arena.framework.core.Screen;
@@ -161,8 +163,10 @@ public class GameScreen extends Screen {
         character2.update(deltaTime);
         if (control == 1) {
             if (joystickPointerID != -1) {
-                character1Transform.translate(CharacterSpeed * joystickX * deltaTime, CharacterSpeed * joystickY * deltaTime, 0.0f);
-                character1Transform.rotation = (float) Math.toDegrees(Math.atan2(joystickY, joystickX)) + 180;
+                float jx = getPerspectiveJoystickX();
+                float jy = getPerspectiveJoystickY();
+                character1Transform.translate(CharacterSpeed * jx * deltaTime, CharacterSpeed * jy * deltaTime, 0.0f);
+                character1Transform.rotation = (float) Math.toDegrees(Math.atan2(jy, jx)) + 180;
             }
             if (joystickPointerID != -1 && character1.getCurrentAnimation().equals("Idle")) {
                 character1.transition("Moving", 0.25f);
@@ -184,6 +188,76 @@ public class GameScreen extends Screen {
         messageCenter.broadcast("Get Projection Matrix", messageCenter);
         messageCenter.broadcast("Get View Matrix", messageCenter);
         messageCenter.broadcast("Get Position", messageCenter);
+    }
+
+    private float getPerspectiveJoystickX() {
+        float[] xAxis = new float[4];
+        float[] yAxis = new float[4];
+        xAxis[0] = 1.0f;
+        xAxis[1] = 0.0f;
+        xAxis[2] = 0.0f;
+        xAxis[3] = 0.0f;
+
+        yAxis[0] = 0.0f;
+        yAxis[1] = 1.0f;
+        yAxis[2] = 0.0f;
+        yAxis[3] = 0.0f;
+
+        float[] worldSpaceXAxis = new float[4];
+        float[] worldSpaceYAxis = new float[4];
+        float[] inverseView = new float[16];
+        Matrix.invertM(inverseView, 0, viewMatrix, 0);
+        Matrix.multiplyMV(worldSpaceXAxis, 0, inverseView, 0, xAxis, 0);
+        Matrix.multiplyMV(worldSpaceYAxis, 0, inverseView, 0, yAxis, 0);
+
+        float worldYAxisX = worldSpaceYAxis[0];
+        float worldYAxisY = worldSpaceYAxis[1];
+        float yAxisLength = Matrix.length(worldYAxisX, worldYAxisY, 0.0f);
+        worldYAxisX /= yAxisLength;
+        worldYAxisY /= yAxisLength;
+
+        float worldXAxisX = worldSpaceXAxis[0];
+        float worldXAxisY = worldSpaceXAxis[1];
+        float xAxisLength = Matrix.length(worldXAxisX, worldXAxisY, 0.0f);
+        worldXAxisX /= xAxisLength;
+        worldXAxisY /= xAxisLength;
+
+        return worldYAxisX * joystickY + worldXAxisX * joystickX;
+    }
+
+    private float getPerspectiveJoystickY() {
+        float[] xAxis = new float[4];
+        float[] yAxis = new float[4];
+        xAxis[0] = 1.0f;
+        xAxis[1] = 0.0f;
+        xAxis[2] = 0.0f;
+        xAxis[3] = 0.0f;
+
+        yAxis[0] = 0.0f;
+        yAxis[1] = 1.0f;
+        yAxis[2] = 0.0f;
+        yAxis[3] = 0.0f;
+
+        float[] worldSpaceXAxis = new float[4];
+        float[] worldSpaceYAxis = new float[4];
+        float[] inverseView = new float[16];
+        Matrix.invertM(inverseView, 0, viewMatrix, 0);
+        Matrix.multiplyMV(worldSpaceXAxis, 0, inverseView, 0, xAxis, 0);
+        Matrix.multiplyMV(worldSpaceYAxis, 0, inverseView, 0, yAxis, 0);
+
+        float worldYAxisX = worldSpaceYAxis[0];
+        float worldYAxisY = worldSpaceYAxis[1];
+        float yAxisLength = Matrix.length(worldYAxisX, worldYAxisY, 0.0f);
+        worldYAxisX /= yAxisLength;
+        worldYAxisY /= yAxisLength;
+
+        float worldXAxisX = worldSpaceXAxis[0];
+        float worldXAxisY = worldSpaceXAxis[1];
+        float xAxisLength = Matrix.length(worldXAxisX, worldXAxisY, 0.0f);
+        worldXAxisX /= xAxisLength;
+        worldXAxisY /= xAxisLength;
+
+        return worldYAxisY * joystickY + worldXAxisY * joystickX;
     }
 
     @Override

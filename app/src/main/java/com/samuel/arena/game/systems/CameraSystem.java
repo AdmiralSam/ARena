@@ -56,7 +56,7 @@ public class CameraSystem implements System {
 
     public float[] getViewMatrix() {
         float[] viewMatrix = new float[16];
-        Matrix.setLookAtM(viewMatrix, 0, 15.0f, 0.0f, 15.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+        Matrix.setLookAtM(viewMatrix, 0, 0.0f, 15.0f, 15.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
         return viewMatrix;
     }
 
